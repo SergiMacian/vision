@@ -60,7 +60,54 @@ class RandomHorizontalFlip(object):
                 target["keypoints"] = keypoints
         return image, target
 
+class RandomRotation(object):
+    def __init__(self, rot_left, rot_right,rot_down):
+        self.rot_left = rot_left
+        self.rot_right = rot_right
+        self.rot_down = rot_down
 
+    def __call__(self, image, target):
+        rand_value = random.random() #retorna un valor entre [0 i 1)
+        print("random value: ", rand_value)
+
+        if rand_value <= self.rot_left:
+            height, width = image.shape[-2:]
+            #la imatge està en tensor amb size torch.Size([3, 160, 70]), per tant només rotem el [1,2]. 
+            #Com rota cap a l'esquerra, només rotem 1 cop (=90º esquerra)
+            image = torch.rot90(image,1,[1,2]) 
+            boxes = target["boxes"]
+            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = boxes[:,1],width-boxes[:,0],boxes[:,3],width-boxes[:,2]
+            target["boxes"] = boxes
+            keypoints = target["keypoints"]
+            keypoints[...,0], keypoints[...,1] = keypoints[...,1], width - keypoints[...,0]
+            target["keypoints"] = keypoints
+
+        elif (self.rot_left < rand_value and rand_value <= (self.rot_left + self.rot_right)):
+            height, width = image.shape[-2:]
+            #la imatge està en tensor amb size torch.Size([3, 160, 70]), per tant només rotem el [1,2]. 
+            #Com rota cap a l'esquerra, rotem 2 cops (=270º esquerra = 90º dreta)
+            image = torch.rot90(image,3,[1,2])
+            boxes = target["boxes"]
+            boxes[:,1],boxes[:,0],boxes[:,3],boxes[:,2] = boxes[:,0],height-boxes[:,1],boxes[:,2],height-boxes[:,3]
+            target["boxes"] = boxes
+            keypoints = target["keypoints"]
+            keypoints[...,1], keypoints[...,0] = keypoints[...,0],height - keypoints[...,1]
+            target["keypoints"] = keypoints
+
+        elif ((self.rot_right+self.rot_left) < rand_value and rand_value <= (self.rot_left + self.rot_right + self.rot_down)):
+            height, width = image.shape[-2:]
+            #la imatge està en tensor amb size torch.Size([3, 160, 70]), per tant només rotem el [1,2]. 
+            #Com rota cap a l'esquerra, rotem 2 cops (=270º esquerra = 90º dreta)
+            image = torch.rot90(image,2,[1,2])
+            boxes = target["boxes"]
+            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = width-boxes[:,0],height-boxes[:,1],width-boxes[:,2],height-boxes[:,3]
+            target["boxes"] = boxes
+            keypoints = target["keypoints"]
+            keypoints[...,0], keypoints[...,1] = width-keypoints[...,0],height - keypoints[...,1]
+            target["keypoints"] = keypoints
+
+        return image, target
+    
 class ToTensor(object):
     def __call__(self, image, target):
         image = F.to_tensor(image)
