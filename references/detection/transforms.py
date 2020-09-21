@@ -77,7 +77,8 @@ class RandomRotation(object):
             #Com rota cap a l'esquerra, només rotem 1 cop (=90º esquerra)
             image = torch.rot90(image,1,[1,2]) 
             boxes = target["boxes"]
-            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = boxes[:,1],width-boxes[:,0],boxes[:,3],width-boxes[:,2]
+            #boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = boxes[:,1],width-boxes[:,0],boxes[:,3],width-boxes[:,2]
+            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = boxes[:,1],width-boxes[:,2],boxes[:,3],width-boxes[:,0]
             target["boxes"] = boxes
             keypoints = target["keypoints"]
             keypoints[...,0], keypoints[...,1] = keypoints[...,1], width - keypoints[...,0]
@@ -89,7 +90,7 @@ class RandomRotation(object):
             #Com rota cap a l'esquerra, rotem 2 cops (=270º esquerra = 90º dreta)
             image = torch.rot90(image,3,[1,2])
             boxes = target["boxes"]
-            boxes[:,1],boxes[:,0],boxes[:,3],boxes[:,2] = boxes[:,0],height-boxes[:,1],boxes[:,2],height-boxes[:,3]
+            boxes[:,1],boxes[:,0],boxes[:,3],boxes[:,2] = boxes[:,0],height-boxes[:,3],boxes[:,2],height-boxes[:,1]
             target["boxes"] = boxes
             keypoints = target["keypoints"]
             keypoints[...,1], keypoints[...,0] = keypoints[...,0],height - keypoints[...,1]
@@ -101,7 +102,7 @@ class RandomRotation(object):
             #Com rota cap a l'esquerra, rotem 2 cops (=270º esquerra = 90º dreta)
             image = torch.rot90(image,2,[1,2])
             boxes = target["boxes"]
-            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = width-boxes[:,0],height-boxes[:,1],width-boxes[:,2],height-boxes[:,3]
+            boxes[:,0],boxes[:,1],boxes[:,2],boxes[:,3] = width-boxes[:,0],height-boxes[:,3],width-boxes[:,2],height-boxes[:,1]
             target["boxes"] = boxes
             keypoints = target["keypoints"]
             keypoints[...,0], keypoints[...,1] = width-keypoints[...,0],height - keypoints[...,1]
