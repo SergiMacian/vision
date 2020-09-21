@@ -68,7 +68,6 @@ class RandomRotation(object):
 
     def __call__(self, image, target):
         rand_value = random.random() #retorna un valor entre [0 i 1)
-        print("random value: ", rand_value)
 
         if rand_value <= self.rot_left:
             height, width = image.shape[-2:]
@@ -105,6 +104,28 @@ class RandomRotation(object):
             keypoints = target["keypoints"]
             keypoints[...,0], keypoints[...,1] = width-keypoints[...,0],height - keypoints[...,1]
             target["keypoints"] = keypoints
+
+        return image, target
+    
+class Albumentation(object):
+    def __init__(self, transform, p):
+        self.p = p
+        self.t = transform
+    def __call__(self, image, target):
+        rand_value = random.random() #retorna un valor entre [0 i 1)
+
+        if rand_value <= self.p:
+          
+          #Convert Tensor to Numpy (through PIL)
+          im = torchvision.transforms.ToPILImage()(image).convert("RGB")  #Tensor to PIL
+          image_np = np.array(im)                                         #PIL to numpy
+
+          # Apply transformations
+          augmented_image = self.t(image=image_np)
+
+          #Convert Numpy to Tensor (through PIL)
+          image = Image.fromarray(augmented_image['image'])               #numpy to PIL
+          image = F.to_tensor(image)                                      #PIL to Tensor
 
         return image, target
     
