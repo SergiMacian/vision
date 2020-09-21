@@ -2,7 +2,9 @@ import random
 import torch
 
 from torchvision.transforms import functional as F
-
+import torchvision
+import numpy as np
+from PIL import Image
 
 def _flip_coco_person_keypoints(kps, width):
     flip_inds = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15]
